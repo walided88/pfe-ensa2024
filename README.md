@@ -4,7 +4,7 @@ Voici mon projet de jeu éducatif en 2D.
 
 ## Démo
 
-[Voir la démo](https://USERNAME.github.io/REPOSITORY_NAME)
+[Voir la démo](https://walided88.github.io/pfe-ensa2024)
 
 ## Fonctionnalités
 - Gestion des collisions
