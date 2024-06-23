@@ -1,78 +1,17 @@
+# Mon Projet de Jeu
 
-npx react-native run-android
-./gradlew assembleRelease
+Voici mon projet de jeu éducatif en 2D.
 
-./gradlew clean
-npm install --legacy-peer-deps
-npm install intl --legacy-peer-deps
-npm install intl intl-pluralrules  --legacy-peer-deps
-npm install @react-native-picker/picker --legacy-peer-deps
-npm install --legacy-peer-deps
+## Démo
 
---legacy-peer-deps
-npm install -g imagemin-cli
+[Voir la démo](https://USERNAME.github.io/REPOSITORY_NAME)
 
- imagemin assets/* --out-dir=assets/optimized
-
-npm install react-native-lazy-load --legacy-peer-deps
-
-npm install --save-dev jest @testing-library/react-native @testing-library/jest-native  --legacy-peer-deps
-npm install intl-pluralrules  --legacy-peer-deps
-
-npm install --legacy-peer-deps
-
-npm install babel-plugin-module-resolver  --legacy-peer-deps
-
-npm install --save-dev @babel/core @babel/preset-env @babel/preset-react @babel/preset-typescript babel-jest --legacy-peer-deps
-
-npm install --legacy-peer-deps
-
-npm install babel-plugin-module-resolver --legacy-peer-deps
-
-npm uninstall @testing-library/jest-native --legacy-peer-deps
-
-npm uninstall react-test-renderer --legacy-peer-deps
-
-npm install react-test-renderer@18.2.0 @testing-library/jest-native@5.4.3 --legacy-peer-deps
-
-npm install metro-react-native-babel-preset --legacy-peer-deps
-
-npm install --save-dev babel-jest @babel/preset-env --legacy-peer-deps
-
-npm install babel-plugin-module-resolver --save-dev --legacy-peer-deps
-
-npm install redux-mock-store --save-dev  --legacy-peer-deps
-
-npm install jest jest-environment-node react-native  --legacy-peer-deps
-
-npm config set registry http://registry.npmjs.org/ --legacy-peer-deps
-
-
-npm install jest jest-environment-node react-native --legacy-peer-deps
-
-
-npm install react-native-dotenv --legacy-peer-deps
-
-
-npm install @google/generative-ai --legacy-peer-deps
-
-npm install react-native-orientation-locker --legacy-peer-deps
-npm install react-native-orientation-locker --legacy-peer-deps
-
-npm install react-i18next i18next --legacy-peer-deps
-
-.\gradlew.bat app:installDebug -PreactNativeDevServerPort=8081
-s
-
-
-
-
-
-
-
-
-
-
+## Fonctionnalités
+- Gestion des collisions
+- Enregistrement de la base de données
+- Navigation par images flottantes
+- Boutons animés
+- Animation des personnages
 
 
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
