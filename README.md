@@ -4,7 +4,7 @@ Voici mon projet de jeu éducatif en 2D.
 
 ## Démo
 
-[Voir la démo](https://walided88.github.io/pfe-ensa2024)
+[Voir la démo](https://appetize.io/app/jlsxryy2ecksy6gu5dbpelk3eq?device=pixel7&osVersion=13.0&orientation=landscape)
 
 ## Fonctionnalités
 - Gestion des collisions
