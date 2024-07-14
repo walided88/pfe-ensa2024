@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Animated, StyleSheet, Dimensions } from 'react-native';
 import Matter from 'matter-js';
 import FastImage from 'react-native-fast-image';
+import {  setIsAnimating } from '../store/actions';
+import { useDispatch} from 'react-redux';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,18 +22,18 @@ const { width, height } = Dimensions.get('window');
  * @param {object} props.characterDimensions - Les dimensions du personnage.
  * @param {object} props.body - Le corps Matter.js associé à l'image.
  */
-const MovingImage = React.memo(({ initialPosition, finalPosition, imageSource, onRemove, characterPosition, characterDimensions, body }) => {
-  const [visible, setVisible] = useState(true);
+const MovingImage = React.memo(({ initialPosition, finalPosition, imageSource, onRemove, characterPosition }) => {
   const position = useRef(new Animated.ValueXY(initialPosition)).current;
+  const dispatch = useDispatch();
 
   // Initialise l'animation à la position initiale de l'image
   useEffect(() => {
+    position.setValue(initialPosition); // Set L'initial position directly
     Animated.timing(position, {
       toValue: initialPosition,
-      duration: 1000,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
-  }, [initialPosition]);
+  }, [initialPosition, position]);
 
   /**
    * Vérifie la distance entre l'image et le personnage et déclenche l'animation si nécessaire.
@@ -47,35 +49,41 @@ const MovingImage = React.memo(({ initialPosition, finalPosition, imageSource, o
     );
 
     // Si l'image est suffisamment proche du personnage, déclenche l'animation vers la position finale
-    if (distance < 55 && visible) {
+    if (distance < 75) {
       Animated.timing(position, {
         toValue: finalPosition,
         duration: 1000,
-        useNativeDriver: false,
+        useNativeDriver: true,
       }).start(() => {
-        setVisible(false);
         if (onRemove) {
+          dispatch(setIsAnimating(false));
+
           onRemove();
         }
       });
     }
-  }, [characterPosition, characterDimensions, position, finalPosition, visible, onRemove]);
+  }, [characterPosition, position, finalPosition, onRemove]);
 
   // Vérifie périodiquement la distance entre l'image et le personnage
   useEffect(() => {
     const interval = setInterval(() => {
       checkDistanceAndAnimate();
-    }, 600);
+    }, 1500);
 
     return () => clearInterval(interval);
   }, [checkDistanceAndAnimate]);
 
-  if (!visible) {
-    return null;
-  }
+ 
+  const animatedStyle = {
+    transform: [
+      { translateX: position.x },
+      { translateY: position.y }
+    ]
+  };
+
 
   return (
-    <Animated.View style={[position.getLayout(), styles.imageContainer]}>
+    <Animated.View style={[animatedStyle, styles.imageContainer]}>
       <FastImage source={imageSource} style={styles.image} />
     </Animated.View>
   );
@@ -86,10 +94,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   image: {
-    width: 29, // Largeur de l'image
-    height: 66, // Hauteur de l'image
-    top: height * 0.14,
-    right: width * 0.031,
+    
+    width: width * 0.5, // Largeur de l'image
+    height: height * 0.5, // Hauteur de l'image
+    top: -height * 0.01,
+    right: width * 0.25,
   },
 });
 

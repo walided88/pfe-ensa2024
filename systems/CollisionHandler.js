@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import Matter from 'matter-js';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCollision, setLastPosition, setIsAnimating } from '../redux/actions';
+import { setCollision, setLastPosition, setIsAnimating } from '../store/actions';
 
 /**
  * CollisionHandler
@@ -20,7 +20,7 @@ const CollisionHandler = ({ engine, box, position }) => {
   const animationRef = useRef(null);
   const isColliding = useSelector((state) => state.isColliding);
   const isCollidingRef = useRef(isColliding);
-  const debounceRef = useRef(false);
+  // const debounceRef = useRef(false);
 
   // Met à jour la référence isCollidingRef lorsque isColliding change.
   useEffect(() => {
@@ -38,17 +38,13 @@ const CollisionHandler = ({ engine, box, position }) => {
       pairs.forEach(pair => {
         if (pair.bodyA === box || pair.bodyB === box) {
           const otherBody = pair.bodyA === box ? pair.bodyB : pair.bodyA;
-          if (otherBody.isStatic && !debounceRef.current) {
-            debounceRef.current = true;
+          if (otherBody.isStatic) {
             setTimeout(() => {
-              debounceRef.current = false;
-            }, 100); // Prévenir les déclenchements rapides multiples
+            }, 10); // Prévenir les déclenchements rapides multiples
 
-            const { x, y } = position.__getValue();
 
             if (!isCollidingRef.current) {
               dispatch(setCollision(true));
-              dispatch(setLastPosition({ x, y }));
 
               // Arrête toute animation en cours.
               if (animationRef.current) {
@@ -57,9 +53,8 @@ const CollisionHandler = ({ engine, box, position }) => {
               }
 
               // Applique une force de répulsion due à la collision.
-              const collisionPoint = pair.collision.supports[0];
-              const forceMagnitude = 3;
-             
+              const collisionPoint = pair.collision.supports[0]; //pair.collision.supports: les points sur les surfaces des deux objets qui sont en contact lors de la collision.
+              const forceMagnitude = 5;
               const forceDirection = Matter.Vector.normalise(Matter.Vector.sub(box.position, collisionPoint));
               const force = Matter.Vector.mult(forceDirection, forceMagnitude);
 
@@ -71,7 +66,7 @@ const CollisionHandler = ({ engine, box, position }) => {
               setTimeout(() => {
                 dispatch(setCollision(false));
                 dispatch(setIsAnimating(false));
-              }, 300);
+              }, 10);
             }
           }
         }
