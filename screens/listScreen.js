@@ -3,8 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet, BackHandler } from 'react-nat
 import FastImage from 'react-native-fast-image';
 import BgMusic from "../components/BgMusique";
 
+import { useTranslation } from 'react-i18next';
+import 'intl';
+import 'intl/locale-data/jsonp/en'; // Ajoutez d'autres langues si nécessaire
+
 /**
- * ComponentListScreen
  *
  * Ce composant affiche une liste de boutons qui permettent de naviguer vers différents écrans de jeu.
  * Chaque bouton représente un type de jeu différent. Un bouton "EXIT" permet de quitter l'application.
@@ -12,15 +15,17 @@ import BgMusic from "../components/BgMusique";
  *
  * @param {object} navigation - L'objet de navigation fourni par React Navigation.
  */
-const ComponentListScreen = React.memo(({ navigation }) => {
+const listScreen = React.memo(({ navigation }) => {
 
   // Fonctions de navigation vers différents écrans
   const navigateToGame = useCallback(() => navigation.navigate('Game'), [navigation]);
-  const navigateToGemini = useCallback(() => navigation.navigate('Gemini'), [navigation]);
   const navigateToHome = useCallback(() => navigation.navigate('Home'), [navigation]);
   const navigateToResults = useCallback(() => navigation.navigate('Results'), [navigation]);
-  
+  const navigateToGame4 = useCallback(() => navigation.navigate('Game4'), [navigation]);
+  const navigateToGame3 = useCallback(() => navigation.navigate('Game3'), [navigation]);
+
   const navigateToGame2 = useCallback(() => navigation.navigate('Game2'), [navigation]);
+  const { t } = useTranslation();
 
   // Fonction pour quitter l'application
   const handleExitApp = useCallback(() => {
@@ -42,44 +47,44 @@ const ComponentListScreen = React.memo(({ navigation }) => {
           style={[styles.button, styles.buttonAddition]}
           onPress={navigateToGame}
         >
-          <Text style={styles.buttonText}>ADDITION GAME</Text>
+          <Text style={styles.buttonText}> {t('ADDITION GAME')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.buttonSubtraction]}
-          onPress={navigateToGemini}
+          onPress={navigateToGame3}
         >
-          <Text style={styles.buttonText}>SOUSTRACTION GAME</Text>
+          <Text style={styles.buttonText}> {t('SUBSTRUCTION GAME')} </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.buttonMultiplication]}
           onPress={navigateToGame2}
         >
-          <Text style={styles.buttonText}>MULTIPLICATION GAME</Text>
+          <Text style={styles.buttonText}>{t('MULTIPLICATION GAME')} </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.buttonDivision]}
-          onPress={navigateToGame}
+          onPress={navigateToGame4}
         >
-          <Text style={styles.buttonText}>DIVISION GAME</Text>
+          <Text style={styles.buttonText}>{t('DIVISION GAME')}  </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.buttonResults]}
           onPress={navigateToResults}
         >
-          <Text style={styles.buttonText}>Results Screen</Text>
+          <Text style={styles.buttonText}>{t('RESULT SCREEN')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.buttonExit]}
           onPress={navigateToHome}
         >
-          <Text style={styles.buttonText}>EXIT</Text>
+          <Text style={styles.buttonText}>{t('EXIT')} </Text>
         </TouchableOpacity>
       </View>
     </FastImage>
   );
 });
 
-export default ComponentListScreen;
+export default listScreen;
 
 // Styles pour le composant
 const styles = StyleSheet.create({
