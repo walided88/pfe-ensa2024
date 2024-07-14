@@ -1,39 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
-import { getPlayerById } from '../services/Database'; // Assurez-vous d'importer correctement
+import { getPlayerById} from '../services/Database'; // Assurez-vous d'importer correctement
 import FastImage from 'react-native-fast-image';
 import BgMusic from "../components/BgMusique";
 
-/**
- * ResultsScreen
- * 
- * Ce composant affiche les résultats du joueur, y compris les scores pour différentes opérations arithmétiques.
- * Il permet également à l'utilisateur de revenir à l'écran précédent ou d'aller à l'écran d'accueil.
- *
- * @param {object} navigation - L'objet de navigation fourni par React Navigation.
- */
-const ResultsScreen = React.memo(({ navigation }) => {
+import { useTranslation } from 'react-i18next';
+import 'intl';
+import 'intl/locale-data/jsonp/en'; // Ajoutez d'autres langues si nécessaire
+
+const ResultsScreen = ({ navigation }) => {
   const playerId = useSelector((state) => state.playerId);
   const [player, setPlayer] = useState(null);
+  const { t } = useTranslation();
 
-  // Effet pour récupérer les données du joueur à partir de la base de données en utilisant l'ID du joueur
   useEffect(() => {
-    if (playerId) {
+   
       console.log("Fetching player with ID:", playerId);
       getPlayerById(playerId, (data) => {
         console.log("Player data:", data);
         setPlayer(data);
       });
-    }
+    
   }, [playerId]);
 
-  // Fonction pour revenir à l'écran précédent
   const handleGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
 
-  // Fonction pour aller à l'écran d'accueil
   const handleExit = useCallback(() => {
     navigation.navigate('ComponentList');
   }, [navigation]);
@@ -44,11 +38,14 @@ const ResultsScreen = React.memo(({ navigation }) => {
         <Text>Loading...</Text>
       </View>
     );
-  } else {
-    if (player.score_addition > 10) {
-      player.score_addition = 10;
-    }
   }
+
+  // Limiter les scores à un maximum de 10
+  ['score_addition', 'score_subtraction', 'score_division', 'score_multiplication'].forEach(score => {
+    if (player[score] > 10) {
+      player[score] = 10;
+    }
+  });
 
   return (
     <FastImage
@@ -62,30 +59,29 @@ const ResultsScreen = React.memo(({ navigation }) => {
           style={styles.backButton}
           onPress={handleGoBack}
         >
-          <Text style={styles.buttonText}>Back</Text>
+          <Text style={styles.buttonText}>{t('Back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Results Screen</Text>
+        <Text style={styles.title}>{t('Results Screen')}</Text>
         <View style={styles.player}>
-          <Text style={styles.playerText}>Name: {player.name}</Text>
-          <Text style={styles.scoreText}>🎉 Addition Score: {player.score_addition}/10</Text>
-          <Text style={styles.scoreText}>🎉 Subtraction Score: {player.score_subtraction}/10</Text>
-          <Text style={styles.scoreText}>🎉 Multiplication Score: {player.score_multiplication}/10</Text>
-          <Text style={styles.scoreText}>🎉 Division Score: {player.score_division}/10</Text>
+          <Text style={styles.playerText}>{t('Name')}: {player.name}</Text>
+          <Text style={styles.scoreText}>🎉 {t('Addition Score')}: {player.score_addition}/10</Text>
+          <Text style={styles.scoreText}>🎉 {t('Subtraction Score')}: {player.score_subtraction}/10</Text>
+          <Text style={styles.scoreText}>🎉 {t('Multiplication Score')}: {player.score_multiplication}/10</Text>
+          <Text style={styles.scoreText}>🎉 {t('Division Score')}: {player.score_division}/10</Text>
         </View>
         <TouchableOpacity
           style={styles.homeButton}
           onPress={handleExit}
         >
-          <Text style={styles.buttonText}>HOME</Text>
+          <Text style={styles.buttonText}>{t('HOME')}</Text>
         </TouchableOpacity>
       </View>
     </FastImage>
   );
-});
+};
 
 export default ResultsScreen;
 
-// Styles pour le composant
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -126,13 +122,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   player: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Fond semi-transparent
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     padding: 20,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'gray',
-    alignItems: 'center', // Centrer le texte horizontalement
-    justifyContent: 'center', // Centrer le texte verticalement
+    alignItems: 'center',
+    justifyContent: 'center',
     width: '80%',
   },
   playerText: {
