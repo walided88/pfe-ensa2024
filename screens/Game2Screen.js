@@ -2,38 +2,39 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Animated, ImageBackground, Dimensions, TouchableOpacity, Text, Image, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Matter from 'matter-js';
-import Game from '../components/Game2';
+import Character2 from '../components/Character2';
 import MovingImage from '../systems/MovingImage';
-import { setAddition } from '../redux/actions';
+import { setAddition } from '../store/actions';
 import BgMusic from "../components/BgMusique";
-import { incrementScoreAddition } from '../services/Database';
+import { incrementScoreMultiplication } from '../services/Database';
 import * as Animatable from 'react-native-animatable';
-import { setShow,setReturn } from '../redux/actions';
+import { setShow,setReturn } from '../store/actions';
+import Lodash from 'lodash';
 
 const { width, height } = Dimensions.get('window');
 
 const imagesArray = [
-  require('../assets/images/1R.webp'),
-  require('../assets/images/2R.webp'),
-  require('../assets/images/3R.webp'),
-  require('../assets/images/5R.webp'),
-  require('../assets/images/6R.webp'),
+  require('../assets/images/1F.webp'),
+  require('../assets/images/2F.webp'),
+  require('../assets/images/4F.webp'),
+  require('../assets/images/6F.webp'),
+  require('../assets/images/8F.webp'),
 ];
 
 const randomImagesArray = [
-  require('../assets/images/1G.webp'),
-  require('../assets/images/2G.webp'),
-  require('../assets/images/3G.webp'),
-  require('../assets/images/5G.webp'),
-  require('../assets/images/6G.webp'),
+  require('../assets/images/1Rfraises.webp'),
+  require('../assets/images/2Rfraises.webp'),
+  require('../assets/images/4Rfraises.webp'),
+  require('../assets/images/6Rfraises.webp'),
+  require('../assets/images/8Rfraises.webp'),
 ];
 
 const initialPositions = [
-  { x: width * 0.55, y: height * 0.2 },
-  { x: width * 0.4, y: height * 0.14 },
-  { x: width * 0.3, y: height * 0.4 },
-  { x: width * 0.66, y: height * 0.151 },
-  { x: width * 0.73, y: height * 0.4 },
+  { x: width * 0.6, y: height * 0.11 },
+  { x: width * 0.4, y: height * 0.13 },
+  { x: width * 0.3, y: height * 0.3 },
+  { x: width * 0.7, y: height * 0.5 },
+  { x: width * 0.25, y: height * 0.6 },
 ];
 
 const finalPositions = [
@@ -44,12 +45,9 @@ const finalPositions = [
   { x: width * 0.1, y: height * 0.1 },
 ];
 
-const characterDimensions = {
-  width: width * 0.4,
-  height: height * 3,
-};
 
-const initialCharacterPosition = { x: width * 0.4, y: height * 0.4 };
+
+const initialCharacterPosition = { x: width * 0.5, y: height * 0.5 };
 
 const congratulationImage = require('../assets/images/congratulations.png');
 const scoreImages = [
@@ -62,117 +60,117 @@ const scoreImages = [
   require('../assets/images/6.webp'),
 ];
 
-const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
+const Game2Screen = ({ navigation, animatedStyle, showGameComponent }) => {
   const dispatch = useDispatch();
   const characterPosition = useSelector((state) => state.position);
   const playerId = useSelector((state) => state.playerId); // Assurez-vous que playerId est correctement défini
   const isShow = useSelector((state) => state.isShowing);
   const retourX = useSelector((state) => state.retour);
+  const [ordre, setOrdre] = useState(1);
+  console.log(`retourX cccccccccccccsdssss`,retourX);
 
   const [addObj, setAddObj] = useState(0);
   const [images, setImages] = useState([]);
   const [randomImageIndex, setRandomImageIndex] = useState(null);
   const [showCongratulation, setShowCongratulation] = useState(false);
   const [currentScoreImage, setCurrentScoreImage] = useState(null);
-  const engine = useRef(Matter.Engine.create({ enableSleeping: false }));
+  const engine = useRef(Matter.Engine.create({ enableSleeping: true }));
   const world = engine.current.world;
   const characterBody = useRef(null);
   const gameRef = useRef();
   const navigateToGemini = useCallback(() => navigation.navigate('Gemini'), [navigation]);
+  const navigateToGame2 = useCallback(() => navigation.navigate('Game2'), [navigation]);
 
-  const shuffleArray = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
-
-  const handleShow = () => {
-    setShowGameComponent(true);
-  };
-
-  const handleHide = () => {
-    setShowGameComponent(false);
-  };
-
+  /**
+   * Initialise les images du jeu avec des positions et des sources aléatoires.
+   * Utilise Lodash pour mélanger les positions initiales des images.
+   */
   const initializeImages = () => {
-    const shuffledImagesArray = imagesArray;
-    const shuffledPositionsArray = shuffleArray([...initialPositions]);
-    const now = Date.now();
+    const shuffledImagesArray = imagesArray; // Tableau des images à afficher
+    const shuffledPositionsArray = Lodash.shuffle([...initialPositions]); // Utilisation de Lodash pour mélanger les positions
+    const now = Date.now(); // Obtenir le temps actuel en millisecondes depuis l'époque UNIX
     const initialImages = shuffledPositionsArray.map((pos, i) => ({
-      id: now + i,
-      initialPosition: pos,
-      finalPosition: finalPositions[i],
-      imageSource: shuffledImagesArray[i],
-      body: Matter.Bodies.rectangle(pos.x, pos.y, width * 0.1, height * 0.1, { isStatic: false }),
+      //Création des objets image
+      id: now + i, // Identifiant unique pour chaque image basé sur l'heure actuelle et l'index
+      initialPosition: pos, // Position initiale de l'image
+      finalPosition: finalPositions[i], // Position finale de l'image
+      imageSource: shuffledImagesArray[i], // Source de l'image
+      body: Matter.Bodies.rectangle(pos.x, pos.y, { enableSleeping: true }), // Corps physique de Matter.js associé à l'image
     }));
-    setImages(initialImages);
-    setRandomImageIndex(Math.floor(Math.random() * randomImagesArray.length));
-
+    setImages(initialImages); // Met à jour l'état avec les images initiales
+    setRandomImageIndex(Math.floor(Math.random() * randomImagesArray.length)); // Sélectionne une image aléatoire
+  
     initialImages.forEach(image => {
-      Matter.World.add(world, image.body);
+      Matter.World.add(world, image.body); // Ajoute les corps des images au monde de Matter.js
     });
   };
-
+  
+  /**
+   * Redistribue les images après qu'une image a été retirée.
+   */
   const redistributeImages = () => {
-    setRandomImageIndex(Math.floor(Math.random() * randomImagesArray.length));
+    setRandomImageIndex(Math.floor(Math.random() * randomImagesArray.length)); // Sélectionne une nouvelle image aléatoire
     if (gameRef.current) {
-      gameRef.current.resetCharacterPosition(initialCharacterPosition.x, initialCharacterPosition.y);
+      gameRef.current.resetCharacterPosition(initialCharacterPosition.x, initialCharacterPosition.y); // Réinitialise la position du personnage
     }
-    setShowCongratulation(false);
-    initializeImages();
+    setShowCongratulation(false); // Cache l'image de félicitations
+    initializeImages(); // Réinitialise les images
   };
-
+  
   useEffect(() => {
-    initializeImages();
-
+    initializeImages(); // Initialise les images lors du montage du composant
+  
     return () => {
       images.forEach(image => {
-        Matter.World.remove(world, image.body);
+        Matter.World.remove(world, image.body); // Supprime les corps des images du monde de Matter.js lors du démontage du composant
       });
     };
   }, []);
-
+  
+  /**
+   * Supprime une image du jeu.
+   * 
+   * @param {number} id Identifiant de l'image à supprimer.
+   * @param {Object} body Corps Matter.js de l'image à supprimer.
+   */
   const removeImage = useCallback((id, body) => {
-    setImages((prevImages) => prevImages.filter((image) => image.id !== id));
-    Matter.World.remove(world, body);
+    // setImages((prevImages) => prevImages.filter((image) => image.id !== id)); // Supprime l'image de l'état local
+    // Matter.World.remove(world, body); // Supprime le corps de l'image du monde de Matter.js
+  
+    const imageIndex = images.findIndex(image => image.id === id); // Trouve l'index de l'image supprimée
+    if (imageIndex === randomImageIndex) { // Si l'image supprimée est l'image aléatoire
+      redistributeImages(); // Redistribue les images
+      setAddObj((prevAddObj) => prevAddObj + 1); // Incrémente le compteur d'objets ajoutés
+      dispatch(setAddition(addObj)); // Met à jour le score dans Redux
 
-    const imageIndex = images.findIndex(image => image.id === id);
-    if (imageIndex === randomImageIndex) {
-      redistributeImages();
-      setAddObj((prevAddObj) => prevAddObj + 1);
     } else {
-      redistributeImages();
+      redistributeImages(); // Redistribue les images
     }
   }, [world, randomImageIndex, images]);
-
-  useEffect(() => {
-    dispatch(setAddition(addObj));
-  }, [addObj, dispatch]);
-
+  
+  // useEffect(() => {
+  //   dispatch(setAddition(addObj)); // Met à jour le score dans Redux
+  // }, [addObj, dispatch]);
+  
   useEffect(() => {
     if (playerId && addObj >= 5 && !showCongratulation) {
       incrementScoreAddition(playerId, 10, () => {
-        console.log(`Score addition incremented by 10 for player ID ${playerId}`);
+        console.log(`Score addition incremented by 10 for player ID ${playerId}`); // Log l'incrémentation du score
       });
-      setShowCongratulation(true);
+      setShowCongratulation(true); // Affiche l'image de félicitations
     } else {
-      setCurrentScoreImage(scoreImages[addObj % scoreImages.length]);
+      setCurrentScoreImage(scoreImages[(addObj % scoreImages.length)+1]); // Met à jour l'image du score
     }
   }, [addObj, playerId, showCongratulation]);
-
+  
   useEffect(() => {
     if (isShow) {
-      dispatch(setReturn(2));
-      navigateToGemini();
-
+      navigateToGemini(); // Navigue vers l'écran "Gemini" si isShow est vrai
+      dispatch(setReturn(2)); // Met à jour l'état Redux pour retourX
     }
-  }, [isShow, navigateToGemini]);
-
-  if (!characterPosition || characterPosition.x === undefined || characterPosition.y === undefined) {
-    return <Text>Loading...</Text>;
-  }
+  }, [isShow, navigateToGemini, retourX]);
+  
+  
 
   return (
     <ImageBackground source={require('../assets/images/kitchen1gaming.webp')} style={styles.background}>
@@ -183,14 +181,7 @@ const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
           </View>
         )}
 
-          <Animated.View style={[styles.animatedBox, animatedStyle]}>
-          {isShow || (
-            <Animatable.View animation="pulse" iterationCount="infinite">
-              <TouchableOpacity onPress={navigateToGemini} style={styles.buttonText2}>
-              </TouchableOpacity>
-            </Animatable.View>
-          )}
-        </Animated.View>
+  
 
         {images.map((image) => (
           <MovingImage
@@ -199,12 +190,10 @@ const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
             finalPosition={image.finalPosition}
             imageSource={image.imageSource}
             characterPosition={characterPosition}
-            characterDimensions={characterDimensions}
             onRemove={() => removeImage(image.id, image.body)}
-            body={image.body}
           />
         ))}
-        <Game ref={gameRef} />
+        <Character2 ref={gameRef} />
         {showCongratulation && (
           <View style={styles.congratulationContainer}>
             <Image source={congratulationImage} style={styles.congratulationImage} />
@@ -228,7 +217,6 @@ const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
   );
 };
 
-export default GameScreen;
 
 // Styles pour le composant
 const styles = StyleSheet.create({
@@ -263,7 +251,8 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 20,
     color: 'white',
-    padding: 10,
+    padding: 15,
+    
 
 
   },
@@ -295,3 +284,4 @@ const styles = StyleSheet.create({
 
   
 });
+export default Game2Screen;

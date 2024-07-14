@@ -6,31 +6,31 @@ import Character1 from '../components/Character1';
 import MovingImage from '../systems/MovingImage';
 import { setAddition } from '../store/actions';
 import BgMusic from "../components/BgMusique";
-import { incrementScoreAddition } from '../services/Database';
+import { incrementScoreAddition,incrementScoreDivision } from '../services/Database';
 import * as Animatable from 'react-native-animatable';
-import { setIsAnimating,setReturn } from '../store/actions';
+import {setReturn } from '../store/actions';
 import Lodash from 'lodash';
 
 const { width, height } = Dimensions.get('window');
 
 const imagesArray = [
-  require('../assets/images/1PREP.webp'),
-  require('../assets/images/2PREP.webp'),
-  require('../assets/images/3PREP.webp'),
-  require('../assets/images/4PREP.webp'),
-  require('../assets/images/6PREP.webp'),
+  require('../assets/images/1DIVREP.webp'),
+  require('../assets/images/2DIVREP.webp'),
+  require('../assets/images/3DIVREP.webp'),
+  require('../assets/images/4DIVREP.webp'),
+  require('../assets/images/6DIVREP.webp'),
 ];
 
 const randomImagesArray = [
-  require('../assets/images/1PASK.webp'),
-  require('../assets/images/2PASK.webp'),
-  require('../assets/images/3PASK.webp'),
-  require('../assets/images/4PASK.webp'),
-  require('../assets/images/6PASK.webp'),
+  require('../assets/images/1DIV.webp'),
+  require('../assets/images/2DIV.webp'),
+  require('../assets/images/3DIV.webp'),
+  require('../assets/images/4DIV.webp'),
+  require('../assets/images/6DIV.webp'),
 ];
 
 const initialPositions = [
-  { x: width * 0.6, y: height * 0.15 },
+  { x: width * 0.6, y: height * 0.11 },
   { x: width * 0.4, y: height * 0.13 },
   { x: width * 0.3, y: height * 0.3 },
   { x: width * 0.7, y: height * 0.5 },
@@ -46,6 +46,7 @@ const finalPositions = [
 ];
 
 
+
 const initialCharacterPosition = { x: width * 0.5, y: height * 0.5 };
 
 const congratulationImage = require('../assets/images/congratulations.png');
@@ -59,17 +60,8 @@ const scoreImages = [
   require('../assets/images/6.webp'),
 ];
 
-/**
- * GameScreen est un composant React Native qui affiche un écran de jeu avec des images animées, un personnage, et un système de score.
- * Le jeu intègre des fonctionnalités de Matter.js pour la gestion physique des objets, ainsi qu'un système de navigation entre différents écrans.
- * 
- * @param {Object} props Les propriétés du composant.
- * @param {Object} props.navigation Objet de navigation utilisé pour naviguer entre les écrans.
- * @param {Object} props.animatedStyle Style animé appliqué à certains composants.
- * @param {boolean} props.showGameComponent Indicateur pour afficher ou cacher des composants spécifiques du jeu.
- * @returns {JSX.Element} Le composant GameScreen.
- */
-const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
+
+const Game4Screen = ({ navigation}) => {
   const dispatch = useDispatch();
   const characterPosition = useSelector((state) => state.position);
   const playerId = useSelector((state) => state.playerId); // Assurez-vous que playerId est correctement défini
@@ -106,7 +98,6 @@ const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
       imageSource: shuffledImagesArray[i], // Source de l'image
       body: Matter.Bodies.rectangle(pos.x, pos.y, { enableSleeping: true }), // Corps physique de Matter.js associé à l'image
     }));
-
     setImages(initialImages); // Met à jour l'état avec les images initiales
     setRandomImageIndex(Math.floor(Math.random() * randomImagesArray.length)); // Sélectionne une image aléatoire
   
@@ -119,12 +110,11 @@ const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
    * Redistribue les images après qu'une image a été retirée.
    */
   const redistributeImages = () => {
-
     setRandomImageIndex(Math.floor(Math.random() * randomImagesArray.length)); // Sélectionne une nouvelle image aléatoire
     if (gameRef.current) {
       gameRef.current.resetCharacterPosition(initialCharacterPosition.x, initialCharacterPosition.y); // Réinitialise la position du personnage
     }
-    // setShowCongratulation(false); // Cache l'image de félicitations
+    setShowCongratulation(false); // Cache l'image de félicitations
     initializeImages(); // Réinitialise les images
   };
   
@@ -147,8 +137,7 @@ const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
   const removeImage = useCallback((id, body) => {
     // setImages((prevImages) => prevImages.filter((image) => image.id !== id)); // Supprime l'image de l'état local
     // Matter.World.remove(world, body); // Supprime le corps de l'image du monde de Matter.js
-    dispatch(setIsAnimating(false));
-
+  
     const imageIndex = images.findIndex(image => image.id === id); // Trouve l'index de l'image supprimée
     if (imageIndex === randomImageIndex) { // Si l'image supprimée est l'image aléatoire
       redistributeImages(); // Redistribue les images
@@ -178,7 +167,7 @@ const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
   useEffect(() => {
     if (isShow) {
       navigateToGemini(); // Navigue vers l'écran "Gemini" si isShow est vrai
-      dispatch(setReturn(1)); // Met à jour l'état Redux pour retourX
+      dispatch(setReturn(4)); // Met à jour l'état Redux pour retourX
     }
   }, [isShow, navigateToGemini, retourX]);
   
@@ -203,6 +192,7 @@ const GameScreen = ({ navigation, animatedStyle, showGameComponent }) => {
             imageSource={image.imageSource}
             characterPosition={characterPosition}
             onRemove={() => removeImage(image.id, image.body)}
+            body={image.body}
           />
         ))}
         <Character1 ref={gameRef} />
@@ -296,4 +286,4 @@ const styles = StyleSheet.create({
 
   
 });
-export default GameScreen;
+export default Game4Screen;
