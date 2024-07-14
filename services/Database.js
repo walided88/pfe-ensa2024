@@ -1,4 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
+import { setPlayerId } from '../store/actions';
+import { useDispatch, useSelector } from 'react-redux';
 
 const database_name = "GameDatabase.db";
 const database_version = "1.0";
@@ -150,7 +152,7 @@ export const getPlayerById = (id, callback) => {
  * @param {string} scoreType - Le type de score à incrémenter.
  * @param {function} callback - Callback en cas de succès ou d'erreur.
  */
-const incrementScore = (id, incrementValue, scoreType, callback) => {
+export const incrementScore = (id, incrementValue, scoreType, callback) => {
   const column = `score_${scoreType}`;
   const query = `UPDATE Players SET ${column} = ${column} + ? WHERE id = ?`;
   const params = [incrementValue, id];
@@ -193,16 +195,51 @@ export const incrementScoreDivision = (id, incrementValue, callback) => {
  */
 export const checkPlayerExists = (name) => {
   return new Promise((resolve, reject) => {
-    const query = `SELECT COUNT(*) as count FROM Players WHERE name = ?`;
+    const query = `SELECT id, COUNT(*) as count FROM Players WHERE name = ?`;
     const params = [name];
-    
+
     executeQuery(query, params, (tx, results) => {
-      const count = results.rows.item(0).count;
-      console.log(`Player ${name} exists: ${count > 0}`);
-      resolve(count > 0);
+      console.log("Query executed successfully, results:", results);
+      if (results.rows.length > 0) {
+        const count = results.rows.item(0).count;
+        console.log("Count:", count);
+        if (count > 0) {
+          const playerId = results.rows.item(0).id;
+          console.log(`Player ${name} exists with ID: ${playerId}`);
+          resolve({ exists: true, playerId: playerId });
+        } else {
+          resolve({ exists: false, playerId: null });
+        }
+      } else {
+        resolve({ exists: false, playerId: null });
+      }
     }, (tx, error) => {
       console.log("Error checking player existence: ", error);
       reject(error);
     });
   });
 };
+
+
+export const getPlayerByName = (name, callback) => {
+  const query = `SELECT id, COUNT(*) as count FROM Players WHERE name = ?`;
+
+  executeQuery(query, [name], (tx, results) => {
+    // Vérification qu'il y a bien des résultats avant d'essayer d'accéder à item(0)
+    if (results.rows.length > 0) {
+      const count = results.rows.item(0).count;
+      const playerId = count > 0 ? results.rows.item(0).id : null;
+
+      console.log(`Player ${name} exists: ${count > 0}`, playerId);
+
+      callback(playerId);
+    } else {
+      // Si aucun résultat n'est retourné
+      callback(null);
+    }
+  }, (tx, error) => {
+    console.log("Error retrieving player: ", error);
+    callback(null);
+  });
+};
+
