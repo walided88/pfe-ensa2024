@@ -1,15 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, Dimensions, TextInput, StyleSheet, ScrollView, ActivityIndicator, Keyboard, TouchableOpacity } from 'react-native';
-import { generateContent, startChat } from '../services/geminiService';
+import { startChat } from '../services/geminiService';
 import { useDispatch, useSelector } from 'react-redux';
-import { setShow, setReturn } from '../redux/actions';
+import { setShow, setReturn } from '../store/actions';
 import FastImage from 'react-native-fast-image';
 import BgMusic from "../components/BgMusique";
 
 const { width, height } = Dimensions.get('window');
 
 const GeminiHelper = ({ onClose, navigation }) => {
-  const [description, setDescription] = useState('');
   const [userInput, setUserInput] = useState('');
   const [chatResponse, setChatResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -17,33 +16,52 @@ const GeminiHelper = ({ onClose, navigation }) => {
   const dispatch = useDispatch();
   const navigateToGame = useCallback(() => navigation.navigate('Game'), [navigation]);
   const navigateToGame2 = useCallback(() => navigation.navigate('Game2'), [navigation]);
+  const navigateToGame3 = useCallback(() => navigation.navigate('Game3'), [navigation]);
+  const navigateToGame4 = useCallback(() => navigation.navigate('Game4'), [navigation]);
 
   const retourX = useSelector((state) => state.retour);
 
+  // Fonction pour démarrer le chat avec Google Generative AI
   const handleStartChat = async () => {
     if (userInput.trim() === '') {
-      setChatResponse('Please enter a message.');
+      setChatResponse('Please enter a message.'); // Vérification de l'entrée utilisateur vide
       return;
     }
-    setIsLoading(true); // Start loading
-    setChatResponse(''); // Clear previous response
-    const response = await startChat(userInput);
-    setChatResponse(response);
-    setIsLoading(false); // Stop loading
+    setIsLoading(true); // Début du chargement
+    setChatResponse(''); // Effacement de la réponse précédente
+    const response = await startChat(userInput); // Appel de la fonction startChat pour obtenir la réponse
+    setChatResponse(response); // Mise à jour de la réponse dans l'état
+    setIsLoading(false); // Fin du chargement
   };
+  console.log('retourX QQQQQQQ',retourX);
 
   const handlePress = () => {
-    if (retourX === 1) {
-      navigateToGame();
-      console.log('Case 1 action');
-    } else if (retourX === 2) {
-      navigateToGame2();
-      console.log('Case 2 action');
+    switch (retourX) {
+      case 1:
+        navigateToGame();
+        console.log('Case 1 action');
+        break;
+      case 2:
+        navigateToGame2();
+        console.log('cas 2 ');
+        break;
+      case 3:
+        navigateToGame3();
+        console.log('cas 3 ');
+        break;
+      case 4:
+        navigateToGame4();
+        console.log('cas 4 ');
+        break;
+      default:
+        console.log('pas de cas ');
     }
   };
+  
+  // Effet pour gérer la visibilité de l'écran en fonction de l'état "isShow" du store Redux
 
   useEffect(() => {
-    if (navigateToGame) {
+    if (navigateToGame ||navigateToGame2 ||navigateToGame3 ||navigateToGame4 ) {
       dispatch(setShow(false));
     }
   }, [isShow, navigateToGame]);
@@ -55,7 +73,7 @@ const GeminiHelper = ({ onClose, navigation }) => {
       resizeMode={FastImage.resizeMode.cover}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {(!isLoading && chatResponse !== '') ? (
+        {(!isLoading && chatResponse.trim() !== '') ? (
           <FastImage
             source={require('../assets/images/botResp.png')}
             style={styles.newBackground}
@@ -68,11 +86,11 @@ const GeminiHelper = ({ onClose, navigation }) => {
         )}
         <View style={styles.chatResponseContainer}>
           <ScrollView contentContainerStyle={styles.chatResponseScroll}>
-            {!isLoading && chatResponse !== '' && (
+            {!isLoading && chatResponse.trim() !== '' && (
               <Text style={styles.chatResponse}>{chatResponse}</Text>
             )}
           </ScrollView>
-          {isLoading && <ActivityIndicator size={100} color="#0000ff" />}
+          {isLoading && <ActivityIndicator size={60} color="#0000ff" />}
 
         </View>
         <TextInput
