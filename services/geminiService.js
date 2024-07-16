@@ -1,6 +1,6 @@
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const apiKey = 'AIzaSyDC87k5wrXs7E-DI2LVqAChK5anDhhapRs'; 
+const apiKey = 'ADD API KEY '; 
 let genAI;
 
 try {
