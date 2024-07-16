@@ -4,7 +4,7 @@ Voici mon projet de jeu éducatif en 2D.
 
 ## Démo
 
-[Voir la démo](https://appetize.io/app/android/com.pfe?device=pixel6&osVersion=13.0&orientation=landscape)
+[Voir la démo](https://appetize.io/app/android/com.pfe?device=pixel6&osVersion=12.0&orientation=landscape)
 
 ## Fonctionnalités
 - Gestion des collisions
